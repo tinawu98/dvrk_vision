@@ -171,13 +171,11 @@ class OverlayWidget(QVTKStereoViewer):
         targetR = 5 # Newtons
         # Calculate color
         xp = [targetF, targetF+targetR]
-        fp = [1, 0]
+        fp = [0, 1]
         colorPos = np.interp(force, xp, fp)
+        opacityPos = colorPos
         color = colorsys.hsv_to_rgb(1, colorPos,1)
-        # if(colorPos <0.1):
-        #     self.arrowActor.GetProperty().SetOpacity(0)
-        # else: 
-        #     self.arrowActor.GetProperty().SetOpacity(.5)
+        self.arrowActor.GetProperty().SetOpacity(opacityPos/2)
 
 
         if self.drawType == "arrow":
