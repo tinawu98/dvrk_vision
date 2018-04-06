@@ -86,6 +86,9 @@ class OverlayWidget(QVTKStereoViewer):
         self.poseSub = rospy.Subscriber('/dvrk/PSM2/position_cartesian_current',
                                         PoseStamped, self.poseCb)
 
+        from dvrk import psm
+        self.robot = psm('PSM2')
+
         if self.masterWidget == None:
             pass
         else:
@@ -110,7 +113,7 @@ class OverlayWidget(QVTKStereoViewer):
             # Create actor that we will position according to dVRK
             self.arrowActor = makeArrowActor()
             #self.arrowActor.GetProperty().SetOpacity(.5)
-	    self.targetActor = makeArrowActor(coneRadius = .07,
+            self.targetActor = makeArrowActor(coneRadius = .07,
                                               shaftRadius = .05)
             self.targetActor.GetProperty().SetOpacity(.2)
             self.ren.AddActor(self.arrowActor)
@@ -161,19 +164,20 @@ class OverlayWidget(QVTKStereoViewer):
             # Get current force
             force = self.force # self.robot.get_current_wrench_body()[0:3]
         else :
-            force = [0,0,0,0];
+            force = self.robot.get_current_wrench_body()[0:3];
         force = np.linalg.norm(force)
-        targetF = .5 # Target force
-        targetR = .5 # Force Range
+        print force
+        targetF = 0 # Newtons
+        targetR = 5 # Newtons
         # Calculate color
-        xp = [targetF-targetR, targetF, targetF+targetR]
-        fp = [0, 1, 0]
+        xp = [targetF, targetF+targetR]
+        fp = [1, 0]
         colorPos = np.interp(force, xp, fp)
-	color = colorsys.hsv_to_rgb(colorPos**3/15, 1,1)
-        if(colorPos <0.1):
-	    self.arrowActor.GetProperty().SetOpacity(0)
-	else:	
-	    self.arrowActor.GetProperty().SetOpacity(.5)
+        color = colorsys.hsv_to_rgb(1, colorPos,1)
+        # if(colorPos <0.1):
+        #     self.arrowActor.GetProperty().SetOpacity(0)
+        # else: 
+        #     self.arrowActor.GetProperty().SetOpacity(.5)
 
 
         if self.drawType == "arrow":
@@ -240,13 +244,13 @@ if __name__ == "__main__":
                          "stereo/left/camera_info",
                          "stereo/right/camera_info",
                          slop = slop)
-    # windowL = QVTKStereoViewer(cams.camL)
-    windowL = OverlayWidget(cams.camL, 'PSM2', cameraTransform)
-    windowL.Initialize()
-    windowL.start()
-    windowL.show()
-    #windowR = OverlayWidget(cams.camR, 'PSM2', cameraTransform, masterWidget = windowL)
-    #windowR.Initialize()
-    #windowR.start()
-    #windowR.show()
+
+    # windowL = OverlayWidget(cams.camL, 'PSM2', cameraTransform)
+    # windowL.Initialize()
+    # windowL.start()
+    # windowL.show()
+    windowR = OverlayWidget(cams.camR, 'PSM2', cameraTransform)#, masterWidget = windowL)
+    windowR.Initialize()
+    windowR.start()
+    windowR.show()
     sys.exit(app.exec_())
