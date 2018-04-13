@@ -98,7 +98,7 @@ def setupRenWinForRegistration(renWin,bgImage,camIntrinsic):
             camIntrinsic (np.ndarray): 4x4 camera intrinsic matrix from
                                        OpenCV calibration
     '''
-
+    # TODO: Split this into two functions
 
     renWin.SetNumberOfLayers(2)
 
