@@ -80,9 +80,9 @@ class QVTKStereoViewer(QVTKRenderWindowInteractor):
             self.bgImage = vtktools.makeVtkImage(image.shape[0:2])
             renWin = self.GetRenderWindow()
             intrinsicMat, extrinsicMat = vtktools.matrixFromCamInfo(self.cam.info)
-            self.ren, bgRen = vtktools.setupRenWinForRegistration(renWin,
-                                                                  self.bgImage,
+            self.ren = vtktools.setupRenWinForRegistrationForeground(renWin,
                                                                   intrinsicMat)
+            bgRen = vtktools.setupRenWinForRegistrationBackground(renWin, self.bgImage, intrinsicMat)
             size = self._RenderWindow.GetSize()
             self._Iren.SetSize(size)
             self._Iren.ConfigureEvent()

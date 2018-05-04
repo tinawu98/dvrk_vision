@@ -87,7 +87,33 @@ def actorFromStl(stlPath):
     actor.SetMapper(mapper)
     return actor
 
-def setupRenWinForRegistration(renWin,bgImage,camIntrinsic):
+def setupRenWinForRegistrationForeground(renWin, camIntrinsic):
+    renWin.SetNumberOfLayers(2) 
+    ren = vtk.vtkRenderer()
+    ren.SetLayer(1)
+    renWin.AddRenderer(ren)
+    imgDims = bgImage.GetDimensions()
+    renWin.SetSize(imgDims[0],imgDims[1])
+    camera = cameraFromMatrix(camIntrinsic,imgDims,imgDims)
+    ren.SetActiveCamera(camera)
+    return ren
+
+def setupRenWinForRegistrationBackground(renWin, bgImage, camIntrinsic):
+    backgroundRen = vtk.vtkRenderer()
+    backgroundRen.SetLayer(0)
+    backgroundRen.InteractiveOff()
+    backgroundRen.SetBackground(1, 1, 1)
+    # Create background object for showing video feed.
+    bgCamera, backgroundActor = _makeImagePlane(bgImage)
+    # Setup camera
+    backgroundRen.AddActor(backgroundActor)
+    backgroundRen.SetActiveCamera(bgCamera)
+    # Add background renderer to window
+    renWin.AddRenderer(backgroundRen)
+    return backgroundRen
+
+
+"""def setupRenWinForRegistration(renWin,bgImage,camIntrinsic):
     ''' Sets up the render window for registration in place
         Input:
             renWin (vtkRenderWindow): render window to set up with
@@ -125,7 +151,7 @@ def setupRenWinForRegistration(renWin,bgImage,camIntrinsic):
     renWin.AddRenderer(backgroundRen)
     
     # Way of getting camera: renWin.GetRenderers().GetFirstRenderer()
-    return ren, backgroundRen
+    return ren, backgroundRen """
 
 class QRosThread(QThread):
     # Qt thread designed to allow ROS to run in the background
